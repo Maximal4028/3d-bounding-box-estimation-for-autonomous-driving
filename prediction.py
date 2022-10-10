@@ -33,13 +33,14 @@ def predict(args):
     else:
         val_imgs = sorted(os.listdir(test_image_dir))
 
-    start_time = time.time()
 
     for i in val_imgs:
         image_file = test_image_dir + i
         label_file = test_label_dir + i.replace('png', 'txt')
+        #label_file = test_label_dir + '0000000000.txt'
         prediction_file = prediction_path + i.replace('png', 'txt')
         calibration_file = test_calib_path + i.replace('png', 'txt')
+        #calibration_file = test_calib_path + 'calib.txt'
 
         # write the prediction file
         with open(prediction_file, 'w') as predict:
@@ -54,7 +55,10 @@ def predict(args):
 
             for line in open(label_file):
                 line = line.strip().split(' ')
-                obj = detectionInfo(line)
+                try:
+                    obj = detectionInfo(line)
+                except:
+                    continue
                 xmin = int(obj.xmin)
                 xmax = int(obj.xmax)
                 ymin = int(obj.ymin)
@@ -69,8 +73,10 @@ def predict(args):
                     patch -= np.array([[[103.939, 116.779, 123.68]]])
                     # extend it to match the training dimension
                     patch = np.expand_dims(patch, 0)
-
+                    start_time = time.time()
                     prediction = model.predict(patch)
+                    end_time = time.time()
+                    print("inference time: ", end_time - start_time)
 
                     dim = prediction[0][0]
                     bin_anchor = prediction[1][0]
@@ -96,9 +102,8 @@ def predict(args):
                     output_line = ' '.join([str(item) for item in output_line]) + '\n'
                     predict.write(output_line)
                     print('Write predicted labels for: ' + str(i))
-    end_time = time.time()
-    process_time = (end_time - start_time) / len(val_imgs)
-    print(process_time)
+    #process_time = (end_time - start_time) / len(val_imgs)
+    #print(process_time)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Arguments for prediction',
@@ -110,7 +115,7 @@ if __name__ == '__main__':
 
     # Todo: subset = 'training' or 'tracklet'
     dir = ReadDir(args.d, subset=args.a,
-                  tracklet_date='2011_09_26', tracklet_file='2011_09_26_drive_0093_sync')
+                  tracklet_date='', tracklet_file='')
     test_label_dir = dir.label_dir
     test_image_dir = dir.image_dir
     test_calib_path = dir.calib_dir

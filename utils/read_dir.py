@@ -24,13 +24,19 @@ class ReadDir():
             self.label_dir = os.path.join(self.tracklet_drive, 'label_02/')
             self.image_dir = os.path.join(self.tracklet_drive, 'image_02/data/')
             self.calib_dir = os.path.join(self.tracklet_drive, 'calib_02/')
-            self.prediction_dir = os.path.join(self.tracklet_drive, 'box_3d_mobilenet/')
+            self.prediction_dir = os.path.join(self.tracklet_drive, 'box_3d/')
+
+            #self.tracklet_drive = os.path.join(self.base_dir, tracklet_date, tracklet_file)
+            #self.label_dir = os.path.join(self.tracklet_drive, 'labels/')
+            #self.image_dir = os.path.join(self.tracklet_drive, 'images/')
+            #self.calib_dir = os.path.join(self.tracklet_drive, 'calib/')
+            #self.prediction_dir = os.path.join(self.tracklet_drive, 'box_3d/')
 
 
 if __name__ == '__main__':
     dir = ReadDir(subset='training')
     dir_ = ReadDir(subset='tracklet',
-                    tracklet_date='2011_09_06',
-                    tracklet_file='2011_09_26_drive_0084_sync')
+                    tracklet_date='',
+                    tracklet_file='')
     print(dir.image_dir)
     print(dir_.image_dir)

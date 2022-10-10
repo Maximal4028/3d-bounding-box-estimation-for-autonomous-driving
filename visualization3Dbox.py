@@ -131,8 +131,10 @@ def visualization(args, image_path, label_path, calib_path, pred_path,
     for index in range(start_frame, end_frame):
         image_file = os.path.join(image_path, dataset[index]+ '.png')
         label_file = os.path.join(label_path, dataset[index] + '.txt')
+        #label_file = label_path + '0000000000.txt'
         prediction_file = os.path.join(pred_path, dataset[index]+ '.txt')
-        calibration_file = os.path.join(calib_path, dataset[index] + '.txt')
+        #calibration_file = os.path.join(calib_path, dataset[index] + '.txt')
+        calibration_file = calib_path + 'calib.txt'
         for line in open(calibration_file):
             if 'P2' in line:
                 P2 = line.split(' ')
@@ -191,8 +193,12 @@ def visualization(args, image_path, label_path, calib_path, pred_path,
         ax2.set_yticks([])
         # add legend
         handles, labels = ax2.get_legend_handles_labels()
-        legend = ax2.legend([handles[0], handles[1]], [labels[0], labels[1]], loc='lower right',
-                            fontsize='x-small', framealpha=0.2)
+        try:
+            legend = ax2.legend([handles[0], handles[1]], [labels[0], labels[1]], loc='lower right',
+                                fontsize='x-small', framealpha=0.2)
+        except:
+            fig.savefig(os.path.join(args.path, dataset[index]), dpi=fig.dpi, bbox_inches='tight', pad_inches=0)
+            continue
         for text in legend.get_texts():
             plt.setp(text, color='w')
 
@@ -222,7 +228,7 @@ def main(args):
 
 if __name__ == '__main__':
     start_frame = 0
-    end_frame = 432
+    end_frame = 900
 
     parser = argparse.ArgumentParser(description='Visualize 3D bounding box on images',
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)

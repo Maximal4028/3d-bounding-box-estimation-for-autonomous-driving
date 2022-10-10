@@ -23,10 +23,9 @@ def train():
     new_data = orientation_confidence_flip(KITTI_train_gen.image_data, dim_avg)
 
     model = nn.network()
-    # model.load_weights('3dbox_weights_mob.hdf5')
-
+    #model.load_weights('3dbox_weights_mob_new_5.hdf5')
     early_stop = callbacks.EarlyStopping(monitor='val_loss', min_delta=0.001, patience=10, mode='min', verbose=1)
-    checkpoint = callbacks.ModelCheckpoint('3dbox_weights_mob.hdf5', monitor='val_loss', verbose=1, save_best_only=True, mode='min', period=1)
+    checkpoint = callbacks.ModelCheckpoint('3dbox_weights_vgg16.hdf5', monitor='val_loss', verbose=1, save_best_only=True, mode='min', period=1)
     tensorboard = callbacks.TensorBoard(log_dir='logs/', histogram_freq=0, write_graph=True, write_images=False)
 
     all_examples = len(new_data)
@@ -38,15 +37,18 @@ def train():
     train_num = int(np.ceil(trv_split / cfg().batch_size))
     valid_num = int(np.ceil((all_examples - trv_split) / cfg().batch_size))
 
+    print(train_num)
+    print(valid_num)
+
     # choose the minimizer to be sgd
-    minimizer = optimizer.SGD(lr=0.0001, momentum = 0.9)
+    # minimizer = optimizer.SGD(lr=0.0001, momentum = 0.9)
+    minimizer = optimizer.Adam(lr=0.0001)
 
     # multi task learning
     model.compile(optimizer=minimizer,  #minimizer,
                   loss={'dimensions': 'mean_squared_error', 'orientation': orientation_loss, 'confidence': 'binary_crossentropy'},
                   loss_weights={'dimensions': 1., 'orientation': 10., 'confidence': 5.})
     # d:0.0088 o:0.0042, c:0.0098
-
     model.fit_generator(generator=train_gen,
                         steps_per_epoch=train_num,
                         epochs=500,

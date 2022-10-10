@@ -1,0 +1,28 @@
+ARG IMAGE=nvcr.io/nvidia/l4t-tensorflow:r32.6.1-tf1.15-py3
+ARG HOME=/home/3d_bbox
+
+FROM ${IMAGE} as builder
+# Install system devel dependencies
+ARG DEBIAN_FRONTEND=noninteractive
+RUN apt-get update && apt-get install -y \
+    wget \
+    gcc \
+    make \
+    git \
+    zlib1g-dev \
+    libssl-dev \
+    libgflags-dev \
+    ffmpeg \
+    libsm6 \
+    libxext6 \
+    && rm -rf /var/lib/apt/lists/*
+
+FROM builder as python-builder
+ARG HOME
+RUN mkdir -p ${HOME} && cd ${HOME} && \
+    git clone https://github.com/Maximal4028/3d-bounding-box-estimation-for-autonomous-driving.git && \
+    cd 3d-bounding-box-estimation-for-autonomous-driving/ && \
+    python3 -m pip install --upgrade pip && \
+    python3 -m pip install setuptools==40.3.0 && \
+    python3 -m pip install opencv-python && \
+    python3 -m pip install h5py==2.10.0

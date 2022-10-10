@@ -19,6 +19,7 @@ def prepare_input_and_output(train_inst, image_dir):
 
     img = cv2.imread(image_dir)
 
+
     if cfg().jit != 0:
         xmin = max(xmin, 0)
         ymin = max(ymin, 0)
@@ -34,7 +35,10 @@ def prepare_input_and_output(train_inst, image_dir):
         img = cv2.flip(img, 1)
 
     # resize the image to standard size
-    img = cv2.resize(img, (cfg().norm_h, cfg().norm_w))
+    try:
+        img = cv2.resize(img, (cfg().norm_h, cfg().norm_w))
+    except:
+        print('\n Error in image: ', image_dir)
     # minus the mean value in each channel
     img = img - np.array([[[103.939, 116.779, 123.68]]])
 
@@ -77,15 +81,19 @@ def data_gen(all_objs):
 
         for key in keys[l_bound:r_bound]:
             # augment input image and fix object's orientation and confidence
-            image, dimension, orientation, confidence = prepare_input_and_output(all_objs[key], all_objs[key]['image'],
+            try:
+                image, dimension, orientation, confidence = prepare_input_and_output(all_objs[key], all_objs[key]['image'],
                                                                                  )
 
-            x_batch[currt_inst, :] = image
-            d_batch[currt_inst, :] = dimension
-            o_batch[currt_inst, :] = orientation
-            c_batch[currt_inst, :] = confidence
+                x_batch[currt_inst, :] = image
+                d_batch[currt_inst, :] = dimension
+                o_batch[currt_inst, :] = orientation
+                c_batch[currt_inst, :] = confidence
 
-            currt_inst += 1
+                currt_inst += 1
+
+            except:
+                continue
 
         yield x_batch, [d_batch, o_batch, c_batch]
 
